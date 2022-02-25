@@ -1,0 +1,41 @@
+.fof-title-row {
+	background-color: #F3EAD8;
+}
+.fof-section-title {
+	color:#6E6C6C;
+}
+.fof-search-input {
+	width:95%;
+}
+.fof-search, .fof-clear {
+	padding: 3px;
+	width: 45%;
+}
+.fof-submit {
+	background-color:#C3151C;
+	color:white;
+	width:100%;
+	border-radius:0px;
+	border:none;
+	font-size: 10px;
+	padding: 10px;
+}
+input.fof-select {
+	width:95%;
+}
+input.item-num,
+input.item-desc,
+input.item-quan {
+	width:95%;
+}
+#fof-comments {
+  width: 100%;
+  height: 75px;
+  padding: 12px 20px;
+  box-sizing: border-box;
+  border: 2px solid #ccc;
+  border-radius: 4px;
+  background-color: #f8f8f8;
+  font-size: 16px;
+  resize: none;
+}
