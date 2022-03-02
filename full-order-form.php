@@ -39,14 +39,32 @@ function fof_plugin_activation() {
 
 }
 
+
 add_action( 'wp_enqueue_scripts', 'load_plugin_css' );
 function load_plugin_css() {
   $plugin_url = plugin_dir_url( __FILE__ );
 
   wp_enqueue_style( 'fof-style', $plugin_url . 'css/styles.css' );
+
   wp_enqueue_script( 'fof-js', $plugin_url . 'js/full-order-form.js',  array( 'jquery' ) );
+  wp_localize_script( 'fof-js', 'fof_ajax_object', array( 'ajax_url' => admin_url( 'admin-ajax.php' ) ) );
+
 }
 
+// Add action to allow AJAX to access fof_search function
+add_action( "wp_ajax_fof_search", "fof_search" );
+add_action( "wp_ajax_nopriv_fof_search", "fof_search" );
+// create the function fof_search
+function fof_search() {
+	global $wpdb;
+	//access passed variable
+	$term = $_POST['fof-search-input'];
+	//search db for term
+	while($result = $wpdb->get_results("SELECT sku, ds FROM catalogNew  WHERE ds LIKE '%".$term."%'")) {
+		// return results
+		wp_send_json ( $result );
+	}
+}
 
 // Add the form content to the new page
 add_action( 'the_content', 'fof_append_to_content' );
@@ -172,7 +190,7 @@ add_action( 'the_content', 'fof_append_to_content' );
 			  <div class="row">
 				  <div class="col-8">
 					  <input type="text" id="search" name="fof-search-input" class="fof-search-input mr-3"/>
-					  <!-- <div id="suggestions"></div> -->
+					   <div id="suggestions"></div>
 				  </div>
 				  <div class="col">
 					  <button type="button" class="btn btn-secondary fof-search rounded-0">Search</button>
@@ -183,7 +201,6 @@ add_action( 'the_content', 'fof_append_to_content' );
 				  <div class="col-8">
 					  <input list="products" name="product" class="fof-select" placeholder="Select One">
 					    <datalist id="products">
-					  	  <option value=" "  selected="selected"/>
 						</datalist>
 				  </div>
 				  <div class="col">
@@ -199,7 +216,7 @@ add_action( 'the_content', 'fof_append_to_content' );
    					  <h5>Item #</h5>
 				  </div>
 				  <div class="col text-center">
-					 <h5>Description Not Required: also out of your control :) </h5>
+					 <h5>Description (Not Required) </h5>
 				 </div>
 				 <div class="col-2 text-right">
 					 <h5>Quantity</h5>
@@ -324,4 +341,6 @@ add_action( 'the_content', 'fof_append_to_content' );
     if(get_the_title() === 'Full Order Form' )  {
 		return $content;
 	}
+
+	// email form
 }
