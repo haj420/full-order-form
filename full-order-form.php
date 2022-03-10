@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Full Order Form
-Description: Creates a page titled "Full Order Form" and adds the form to that page. Setting page allows for email(s)  manipulation.
+Description: Creates a page titled "Full Order Form" and adds the form to that page. Setting page allows for email(s) manipulation.
 Version: 1.0.0
 Contributors: haj420
 Author: Wm. Kroes
@@ -66,6 +66,46 @@ function fof_search() {
 	}
 }
 
+// Add action to allow AJAX to access send_message function
+
+add_action( "wp_ajax_send_message", "send_message" );
+add_action( "wp_ajax_nopriv_send_message", "send_message" );
+// create the function to send email
+function send_message() {
+ //  if
+ //  (
+	// isset($_POST['distributorName'])
+ //  &&isset($_POST['distributorEmail'])
+ //  &&isset($_POST['name'])
+ //  &&isset($_POST['address'])
+ //  &&isset($_POST['city'])
+ //  &&isset($_POST['state'])
+ //  &&isset($_POST['zip'])
+ //  &&isset($_POST['po'])
+ //  &&isset($_POST['phone'])
+ //  &&isset($_POST['email'])
+ // ) {
+	 $message = "Order Form Submission\r\n";
+	 foreach($_POST as $key=>$value) {
+       $message .= $_POST[$key]." : ".$value;
+     }
+
+    $send_to = "charwebsllc@gmail.com";
+    $subject = "Distributor Order from ".$_POST['distributorName'];
+    $success = wp_mail($send_to,$subject,$message);
+	// wp_mail('charwebsllc@gmail.com', 'test', 'test');
+            if ($success) return true;
+            else return false;
+  // }
+  // else
+  // {
+	//   die();
+	//   // return false;
+  // }
+
+}
+
+
 // Add the form content to the new page
 add_action( 'the_content', 'fof_append_to_content' );
   function fof_append_to_content()
@@ -80,54 +120,65 @@ add_action( 'the_content', 'fof_append_to_content' );
 			        <div class="col">
 						<h5 class="modal-title text-left">Full Order Form</h5>
 					</div>
-				</div>
-				  <div class="row">
+				</div>';
+
+				if( 1 === get_current_blog_id() ) :
+			    	$content .= '
+					<div class="row">
 		  			<div class="col-sm-12 col-md-6">
 		  				<h5 class="fof-section-title">Distributor Information</h5>
 						<div class="form-group">
 					      <label for="distributorName">Distributor Name</label>
-					      <input type="text" class="form-control" id="distributorName" placeholder="ACME, Inc.">
+					      <input type="text" class="form-control" id="distributorName" name="distributorName" placeholder="ACME, Inc.">
 
 		  			      <label for="distributorEmail">Distributor Email</label>
-		  			      <input type="email" class="form-control" id="distributorEmail" placeholder="info@acme.com">
+		  			      <input type="email" class="form-control" id="distributorEmail" name="distributorEmail" placeholder="info@acme.com">
 				    </div>
   		  			<div class="col-sm-12 col-md-6"></div>
-				</div>
+				</div>';
+			else:
+				$content .= '
+				<div class="row">
+				<div class="col-sm-12 col-md-6">
+				<div class="col-sm-12 col-md-6"></div>
+			</div>';
+				endif;
+				$content .= '
 				<div class="row mt-5">
   		  			<div class="col-sm-12 col-md-6 border-end border-dark">
 		  				<h5 class="fof-section-title">Account Information</h5>
 		  			      <label for="name">Your Name</label>
-		  			      <input type="text" class="form-control" id="name" placeholder="Wile E. Coyote">
+		  			      <input type="text" class="form-control" id="name" name="name" placeholder="Wile E. Coyote">
 
 						  <label for="companyName">Company Name</label>
-						  <input type="text" class="form-control" id="companyName" placeholder="Wile E. Corporation">
+						  <input type="text" class="form-control" id="companyName" name="companyName" placeholder="Wile E. Corporation">
 
 						  <label for="address">Address</label>
-						  <input type="text" class="form-control" id="address" placeholder="123 Any St.">
+						  <input type="text" class="form-control" id="address" name="address" placeholder="123 Any St.">
 
 						  <label for="city">City/Town</label>
-						  <input type="text" class="form-control" id="city" placeholder="Desertville">
+						  <input type="text" class="form-control" id="city" name="city" placeholder="Desertville">
 
 						  <div class="row">
 							  <div class="col-sm-12 col-md-6">
 						    	<label for="state">State</label>
-						    	<input type="text" class="form-control" id="state" placeholder="AZ">
+						    	<input type="text" class="form-control" id="state" name="state" placeholder="AZ">
 						  	  </div>
 							  <div class="col-sm-12 col-md-6">
 							    <label for="zip">Zip Code</label>
-							    <input type="text" class="form-control" id="zip" placeholder="00000">
+							    <input type="text" class="form-control" id="zip" name="zip" placeholder="00000">
 							  </div>
 						  </div>
 
 
 						  <label for="po">Purchase Order Number</label>
-						  <input type="text" class="form-control" id="po" placeholder="12345">
+						  <input type="text" class="form-control" id="po" name="po" placeholder="12345">
 
 						  <label for="phone">Phone Number</label>
-						  <input type="phone" class="form-control" id="phone" placeholder="(800) 222-1234">
+						  <input type="phone" class="form-control" id="phone" name="phone" placeholder="(800) 222-1234">
 
 						  <label for="email">Email Address</label>
-						  <input type="email" class="form-control" id="city" placeholder="W.E.Coyote@wileecorp.com">
+						  <input type="email" class="form-control" id="email" name="email" placeholder="W.E.Coyote@wileecorp.com">
 
 					    </div>
 					<div class="col-sm-12 col-md-6">
@@ -228,10 +279,10 @@ add_action( 'the_content', 'fof_append_to_content' );
 					<button class="add-item-btn">+</button>
    				  </div>
    				  <div class="col-2">
-   					 <input type="text" name="itemnum0" class="item-num" readonly />
+   					 <input type="text" name="itemnum0" class="item-num" />
    				 </div>
    				 <div class="col">
-					<input type="text" name="itemdesc0" class="item-desc" readonly />
+					<input type="text" name="itemdesc0" class="item-desc" />
    				 </div>
    				 <div class="col-2">
 					<input type="number" name="itemquan0" class="item-quan" />
@@ -242,10 +293,10 @@ add_action( 'the_content', 'fof_append_to_content' );
 					<button class="add-item-btn">+</button>
    				  </div>
    				  <div class="col-2">
-   					 <input type="text" name="itemnum1" class="item-num" readonly />
+   					 <input type="text" name="itemnum1" class="item-num" />
    				 </div>
    				 <div class="col">
-					<input type="text" name="itemdesc1" class="item-desc" readonly />
+					<input type="text" name="itemdesc1" class="item-desc" />
    				 </div>
    				 <div class="col-2">
 					<input type="number" name="itemquan1" class="item-quan" />
@@ -256,10 +307,10 @@ add_action( 'the_content', 'fof_append_to_content' );
 					<button class="add-item-btn">+</button>
 				  </div>
 				  <div class="col-2">
-					 <input type="text" name="itemnum2" class="item-num" readonly />
+					 <input type="text" name="itemnum2" class="item-num" />
 				 </div>
 				 <div class="col">
-					<input type="text" name="itemdesc2" class="item-desc" readonly />
+					<input type="text" name="itemdesc2" class="item-desc" />
 				 </div>
 				 <div class="col-2">
 					<input type="number" name="itemquan2" class="item-quan" />
@@ -270,10 +321,10 @@ add_action( 'the_content', 'fof_append_to_content' );
 					<button class="add-item-btn">+</button>
 				  </div>
 				  <div class="col-2">
-					 <input type="text" name="itemnum3" class="item-num" readonly />
+					 <input type="text" name="itemnum3" class="item-num" />
 				 </div>
 				 <div class="col">
-					<input type="text" name="itemdesc3" class="item-desc" readonly />
+					<input type="text" name="itemdesc3" class="item-desc" />
 				 </div>
 				 <div class="col-2">
 					<input type="number" name="itemquan3" class="item-quan" />
@@ -284,10 +335,10 @@ add_action( 'the_content', 'fof_append_to_content' );
 					<button class="add-item-btn">+</button>
 				  </div>
 				  <div class="col-2">
-					 <input type="text" name="itemnum4" class="item-num" readonly />
+					 <input type="text" name="itemnum4" class="item-num" />
 				 </div>
 				 <div class="col">
-					<input type="text" name="itemdesc4" class="item-desc" readonly />
+					<input type="text" name="itemdesc4" class="item-desc" />
 				 </div>
 				 <div class="col-2">
 					<input type="number" name="itemquan4" class="item-quan" />
@@ -298,10 +349,10 @@ add_action( 'the_content', 'fof_append_to_content' );
 					<button class="add-item-btn">+</button>
 				  </div>
 				  <div class="col-2">
-					 <input type="text" name="itemnum5" class="item-num" readonly />
+					 <input type="text" name="itemnum5" class="item-num" />
 				 </div>
 				 <div class="col">
-					<input type="text" name="itemdesc5" class="item-desc" readonly />
+					<input type="text" name="itemdesc5" class="item-desc" />
 				 </div>
 				 <div class="col-2">
 					<input type="number" name="itemquan5" class="item-quan" />
@@ -329,7 +380,7 @@ add_action( 'the_content', 'fof_append_to_content' );
 		<div class="row">
 	  <div class="sm-d-none md-d-flex col"></div>
 	  <div class="fof-form col-sm-12 col-md-6 p-0">
-        <button type="button" class="btn btn-primary fof-submit">Submit Order</button>
+        <button type="button" class="btn btn-danger fof-submit">Submit Order</button>
 		<br>
 		<p class="fof-section-title ps-2">Freight Will Be Added to Final Invoices</p>
 	  </div>
@@ -338,9 +389,11 @@ add_action( 'the_content', 'fof_append_to_content' );
 		</div>
 	</form>
 	';
+	//make sure we are working on our form
     if(get_the_title() === 'Full Order Form' )  {
 		return $content;
 	}
 
 	// email form
+
 }

@@ -5,6 +5,13 @@ jQuery( document ).ready( function( $ ) {
 		$('div#shipAddressGroup').toggle();
 	})
 
+	// Event listener for fof-clear BTN
+	$('.fof-clear').on('click', function() {
+		$('.fof-search-input').val('');
+		$('.fof-select').val('');
+
+	});
+
 	// SEARCH ITEMS FUNCTION
 	//set global variables
 	var sku;
@@ -15,7 +22,7 @@ jQuery( document ).ready( function( $ ) {
 		$('[name=products]').val('');
 		// AJAX url
 		var fofSearchInput = $(this).val();
-		jQuery.ajax({
+		$.ajax({
 		    type: "POST",
 		    dataType: "json",
 		    url: fof_ajax_object.ajax_url,
@@ -25,10 +32,10 @@ jQuery( document ).ready( function( $ ) {
 			},
 		    success: function(response){
 			$(response).each(function(i) {
-				sku = response[i].sku;
-				ds = response[i].ds;
+				// sku = response[i].sku;
+				// ds = response[i].ds;
 				// console.log(sku+":"+ds);
-				var option = "<option value="+sku+">"+ds+"</option>";
+				var option = "<option value="+response[i].sku+">"+response[i].ds+"</option>";
 					$('#products').append(option);
 					_this.focus();
 			});
@@ -41,13 +48,15 @@ jQuery( document ).ready( function( $ ) {
 
 	// add item to row next to button CLICKED
 	$('.fof-item-list').on('click', '.add-item-btn', function() {
-		// $('[name=product].fof-select').val('');
     	event.preventDefault();
-		console.log(sku);
-		console.log(ds);
+		var value = $('[name=product]').val();
+		var ds = $('[name=product]').text();
+		console.log('adding :'+value+' -> '+ds);
+		// console.log(sku);
+		// console.log(ds);
 		// console.log($('[name=product]').val());
 		// console.log($('[name=product]' ).text());
-		$(this).closest('.row').find('.item-num').val(sku);
+		$(this).closest('.row').find('.item-num').val(value);
 		$(this).closest('.row').find('.item-desc').val(ds);
 		// alert($(this).val());
 	});
@@ -61,18 +70,72 @@ jQuery( document ).ready( function( $ ) {
 		i = ++i;
 		var row = '<div class="row mt-1">' +
 				'<div class="col-2 text-center">' +
-				  '<ibutton class="add-item-btn">+</button>' +
+				  '<button class="add-item-btn">+</button>' +
 				'</div>' +
 				'<div class="col-2">' +
-				   '<input type="text" name="itemnum'+i+'" class="item-num" readonly />' +
+				   '<input type="text" name="itemnum'+i+'" class="item-num"  />' +
 			  ' </div>' +
 			   '<div class="col">' +
-				  '<input type="text" name="itemdesc'+i+'" class="item-desc" readonly />' +
+				  '<input type="text" name="itemdesc'+i+'" class="item-desc"  />' +
 			   '</div>' +
 			   '<div class="col-2">' +
 				  '<input type="number" name="itemquan'+i+'" class="item-quan" />' +
 			   '</div>' +
 		   '</div>';
 		$('.fof-item-list').append(row);
-	})
-} );
+	});
+
+	//SUBMIT FORM FUNCTION
+
+	//.fof-submit event listener
+	$('.fof-submit').click(function() {
+		//prevent default action
+		event.preventDefault();
+	//send ajax request
+	$.ajax({
+		type: "POST",
+		dataType: "json",
+		url: fof_ajax_object.ajax_url,
+		data: {
+			action: 'send_message',
+			// 'distributorName':'distributorName',
+			// 'distributorEmail':'distributorEmail',
+			// 'name':'name',
+			// 'address':'address',
+			// 'city':'city',
+			// 'state':'state',
+			// 'zip':'zip',
+			// 'po':'po',
+			// 'phone':'phone',
+	        // 'email':'email'
+		},
+		success: function(response){
+			alert('message sent.')
+		},
+		error: function(response) {
+			alert('error');
+		}
+	});
+
+// 	$.post(
+//     fof_ajax_object.ajax_url,
+//     {
+//         'action': 'send_message',
+//         'distributorName':'distributorName',
+// 		'distributorEmail':'distributorEmail',
+// 		'name':'name',
+// 		'address':'address',
+// 		'city':'city',
+// 		'state':'state',
+// 		'zip':'zip',
+// 		'po':'po',
+// 		'phone':'phone',
+//         'email':'email'
+//
+//     },
+//     function(response){
+//         alert('The server responded: ' + response);
+//     }
+// );
+	});
+});
