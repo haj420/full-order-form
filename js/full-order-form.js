@@ -1,4 +1,6 @@
 jQuery( document ).ready( function( $ ) {
+	$('.fof > a').attr('href', 'full-order-form/')
+
 	// alert('Jquery and plugin js loaded.');
     $('input[name="shippingAddress"]').change(function() {
 		// alert('BTN CLICKED.');

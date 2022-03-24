@@ -254,6 +254,7 @@ function send_message() {
 		';
 	$message .= '
 						Thank you,
+						'.get_bloginfo( 'name' ).'
 		';
 	//Tracking Code
 	$message .= '
@@ -265,8 +266,10 @@ function send_message() {
 	$send_to = "charwebsllc@gmail.com";
 	if(isset($_POST['distributorName'])) {
     	$subject = "Distributor Order from ".$_POST['distributorName'];
-	} else {
-		$subject = "Distributor Order from distributor";
+	} elseif (get_bloginfo('name') !== null) {
+		$subject = "Distributor Order from distributor ".get_bloginfo( 'name' );
+	}else {
+		$subject = "Distributor Order from distributor"; // WHY DOESN'T THIS WORK? .get_bloginfo( 'name' )." ";
 	}
 
 $headers = array( 'Content-Type: text/html; charset=UTF-8' );
@@ -321,7 +324,7 @@ add_action( 'the_content', 'fof_append_to_content' );
 				<div class="col-sm-12 col-md-6">
 				<div class="col-sm-12 col-md-6"></div>
 			</div>';
-				endif;
+			endif;
 				$content .= '
 				<div class="row mt-5">
   		  			<div class="col-sm-12 col-md-6 border-end border-dark">
