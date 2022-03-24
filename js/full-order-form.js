@@ -18,10 +18,8 @@ jQuery( document ).ready( function( $ ) {
 	var ds;
 	$('.fof-search-input').keyup(function() {
 		var _this = $(this);
-		$('#products').empty();
-		$('[name=products]').val('');
-		// AJAX url
 		var fofSearchInput = $(this).val();
+		// AJAX url
 		$.ajax({
 		    type: "POST",
 		    dataType: "json",
@@ -31,6 +29,7 @@ jQuery( document ).ready( function( $ ) {
 				'fof-search-input': fofSearchInput
 			},
 		    success: function(response){
+			$('#products').empty();
 			$(response).each(function(i) {
 				// sku = response[i].sku;
 				// ds = response[i].ds;
@@ -51,11 +50,6 @@ jQuery( document ).ready( function( $ ) {
     	event.preventDefault();
 		var value = $('[name=product]').val();
 		var ds = $('[name=product]').text();
-		console.log('adding :'+value+' -> '+ds);
-		// console.log(sku);
-		// console.log(ds);
-		// console.log($('[name=product]').val());
-		// console.log($('[name=product]' ).text());
 		$(this).closest('.row').find('.item-num').val(value);
 		$(this).closest('.row').find('.item-desc').val(ds);
 		// alert($(this).val());
@@ -91,51 +85,22 @@ jQuery( document ).ready( function( $ ) {
 	$('.fof-submit').click(function() {
 		//prevent default action
 		event.preventDefault();
-	//send ajax request
-	$.ajax({
-		type: "POST",
-		dataType: "json",
-		url: fof_ajax_object.ajax_url,
-		data: {
-			action: 'send_message',
-			// 'distributorName':'distributorName',
-			// 'distributorEmail':'distributorEmail',
-			// 'name':'name',
-			// 'address':'address',
-			// 'city':'city',
-			// 'state':'state',
-			// 'zip':'zip',
-			// 'po':'po',
-			// 'phone':'phone',
-	        // 'email':'email'
-		},
-		success: function(response){
-			alert('message sent.')
-		},
-		error: function(response) {
-			alert('error');
-		}
+		if(distributorName === undefined) { var distributorName = $('#fofDistributorName').val(); }
+		var data = $('#fof-form').serialize();
+		//send ajax request
+		$.ajax({
+			type: "POST",
+			dataType: "json",
+			url: fof_ajax_object.ajax_url,
+			data: data,
+			success: function(response){
+				alert('message sent.')
+			},
+			error: function(response) {
+				alert('error');
+			}
+		});
 	});
 
-// 	$.post(
-//     fof_ajax_object.ajax_url,
-//     {
-//         'action': 'send_message',
-//         'distributorName':'distributorName',
-// 		'distributorEmail':'distributorEmail',
-// 		'name':'name',
-// 		'address':'address',
-// 		'city':'city',
-// 		'state':'state',
-// 		'zip':'zip',
-// 		'po':'po',
-// 		'phone':'phone',
-//         'email':'email'
-//
-//     },
-//     function(response){
-//         alert('The server responded: ' + response);
-//     }
-// );
-	});
+
 });

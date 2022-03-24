@@ -12,6 +12,8 @@ Text Domain: full_order_form
 global $wpdb;
 define( 'FOF_PLUGIN_FILE', __FILE__ );
 register_activation_hook( FOF_PLUGIN_FILE, 'fof_plugin_activation' );
+
+
 function fof_plugin_activation() {
 
   if ( ! current_user_can( 'activate_plugins' ) ) return;
@@ -60,14 +62,14 @@ function fof_search() {
 	//access passed variable
 	$term = $_POST['fof-search-input'];
 	//search db for term
-	while($result = $wpdb->get_results("SELECT sku, ds FROM catalogNew  WHERE ds LIKE '%".$term."%'")) {
+	while($result = $wpdb->get_results("SELECT sku, ds FROM catalogNew  WHERE ds LIKE '%".$term."%' LIMIT 10")) {
 		// return results
 		wp_send_json ( $result );
 	}
 }
 
-// Add action to allow AJAX to access send_message function
 
+// Add action to allow AJAX to access send_message function
 add_action( "wp_ajax_send_message", "send_message" );
 add_action( "wp_ajax_nopriv_send_message", "send_message" );
 // create the function to send email
@@ -85,14 +87,190 @@ function send_message() {
  //  &&isset($_POST['phone'])
  //  &&isset($_POST['email'])
  // ) {
-	 $message = "Order Form Submission\r\n";
-	 foreach($_POST as $key=>$value) {
-       $message .= $_POST[$key]." : ".$value;
-     }
+	 // $message = "Order Form Submission\r\n";
 
-    $send_to = "charwebsllc@gmail.com";
-    $subject = "Distributor Order from ".$_POST['distributorName'];
-    $success = wp_mail($send_to,$subject,$message);
+
+	 // unset($_POST['action']);
+	 // unset($_POST['fof-search-input']);
+	 // unset($_POST['product']);
+	 // foreach($_POST as $key=>$value) {
+		//  if($value !== '') {
+		// $message .= $key." : ".$value."\r\n";
+		//  }
+	 //   }
+
+
+    // $send_to = array(
+	//     "charwebsllc@gmail.com" ,
+	// 	"bdstart@startimarketing.com"
+	// );
+	// include(plugin_dir_path( __FILE__ ) . "email.php");
+
+	$message = '<!DOCTYPE html><html><head>
+							<style>
+							* {
+								font-size: 14px!important;
+								font-family: Arial;
+							}
+							</style>
+							<!– [if gte mso 9]>
+							<style>
+							li {list-style-type:none;}
+							</style>
+							<![endif]–>
+
+						</head>
+					<body>
+					<p style="">Hello '.$_POST["name"].',
+		<br>
+		<br>
+		Thank you for your order, we really appreciate your business.</p>
+		<table style="width:100%;max-width:720px;margin:0px;">
+			<tbody>
+				<tr>
+					<td style="text-align:left;vertical-align:top;width:60%;">
+						<h4 style="margin:0px;">Account Information</h4>
+							Name: '.$_POST['name'] .'<br>
+							Company Name: '. $_POST['accountno'].'<br>
+							Address: '. $_POST['add'] .'<br>
+							City: '.$_POST['city'].'<br>
+							State: '.$_POST['state'].'<br>
+							Zip: '.$_POST['zip'].'<br>
+							PO: '.$_POST['customerpo'].'<br>
+							Phone: '.$_POST['phonenumber'].'<br>
+							Email: '.$_POST['emailadd'].'<br>
+						</ul>
+					</td>
+					<td style="text-align:left;vertical-align:top;width:40%;">
+						<h4 style="margin:0px;">Shipping Information</h4>
+							Preferred Shipping: '.$_POST['shipmethod'].'<br>
+		';
+
+	//  Find out if shipping to same address
+	if ($_POST['shipto'] == 'same') {
+		$message .= '
+							Company Name: '.$_POST['accountno'].'<br>
+							Attn: '.$_POST['name'].'<br>
+							Address: '.$_POST['add'].'<br>
+							City: '.$_POST['city'].'<br>
+							State: '.$_POST['state'].'<br>
+							Zip: '.$_POST['zip'].'<br>
+						';
+	} else {
+		$message .= '
+							Company Name: '.$_POST['shipaccountno'].'<br>
+							Attn: '.$_POST['shipattn'].'<br>
+							Address: '.$_POST['shipadd'].'<br>
+							City: '.$_POST['shipcity'].'<br>
+							State: '.$_POST['shipstate'].'<br>
+							Zip: '.$_POST['shipzip'].'<br>
+						';
+	}
+	//  Continue message
+	$message .= '
+					</td>
+				</tr>
+			</tbody>
+		</table>
+		<table style="width:100%;max-width:720px;margin:0px;">
+			<tbody>
+				<tr>
+					<td colspan="3">
+						<h4 style="text-align:center;margin:0px;">Requested Items</h4>
+					</td>
+				</tr>
+				<tr>
+					<td style="width:200px;">
+						<h4 style="margin:0px;">Item Number</h4>
+					</td>
+					<td style="width:400px;">
+						<h4 style="margin:0px;">Description</h4>
+					</td>
+					<td style="width:200px;">
+						<h4 style="margin:0px;">Quantity</h4>
+					</td>
+				</tr>
+		';
+	// Extract $_POST values for each item added to cart
+	$i = 0;
+	foreach ($_POST as $key => $value) {
+		if (preg_match('@^itemnum@', $key)) {
+			$message .= '
+				<tr>
+					<td>
+					<!-- <input required type="text" name="itemnum'.$i.'" id="itemnum'.$i.'" style="border:0px; -size:10pt; font-weight: normal" size="15" tabindex="19" maxlength="30" autocomplete="on" value="'. $value.'">-->
+					'.$value.'
+					</td>
+			';
+			if (isset($items)) {
+				$items++;
+			} else {
+				$items=1;
+			};
+		}
+
+		if (preg_match('@^itemdes@', $key)) {
+			$message .= '
+					<td>
+						<!--<input required type="text" name="itemdesc'.$i.'" id="itemdesc'.$i.'" style="border:0px; font-size:10pt; font-weight: normal;" size="56" tabindex="20" maxlength="250" autocomplete="on" value="'.$value.'">-->
+					'.$value.'
+					</td>
+			';
+		}
+
+		if (preg_match('@^itemquan@', $key)) {
+			$message .= '
+					<td>
+						<!--<input required type="text" name="itemquan'.$i.'" id="itemquan'.$i.'" style="border:0px; font-size:10pt; font-weight: normal" size="7" tabindex="21" maxlength="10" autocomplete="on" value="'.$value.'">-->
+					'.$value.'
+					</td>
+			';
+		}
+		/*  Only for use when using with prices
+		if(preg_match('@^itemprice@', $key)) {
+		$message .= '
+				<td>
+					<input required type="text" name="itemprice'.$i.'" id="itemprice'.$i.'" style="font-size:10pt; font-weight: normal" size="7" tabindex="21" maxlength="10" autocomplete="on" value="'.$value.'">
+				</td>
+		';
+		}
+		*/
+		$i++;
+	}
+	$message .= '
+				</tr>
+				<tr>
+					<td colspan="3">
+						<h4 style="text-align:center;margin:0px;">Additional Comments</h4>
+						<p style="text=align:left;margin:0px;">'.$_POST['addcomments'].'</p>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+		';
+	$message .= '    <br>
+						<p style="margin:0px;">Please keep this for your records.
+						<br>
+		';
+	$message .= '
+						Thank you,
+		';
+	//Tracking Code
+	$message .= '
+		<img src="http://autoformsandsupplies.com/fx/email_track.php?code='.$track_code.'"/>
+						</body>
+						</html>';
+
+
+	$send_to = "charwebsllc@gmail.com";
+	if(isset($_POST['distributorName'])) {
+    	$subject = "Distributor Order from ".$_POST['distributorName'];
+	} else {
+		$subject = "Distributor Order from distributor";
+	}
+
+$headers = array( 'Content-Type: text/html; charset=UTF-8' );
+    $success = wp_mail($send_to,$subject,$message, $headers);
 	// wp_mail('charwebsllc@gmail.com', 'test', 'test');
             if ($success) return true;
             else return false;
@@ -113,6 +291,7 @@ add_action( 'the_content', 'fof_append_to_content' );
 
 	$content = '
 		<form id="fof-form" >
+		<input type="hidden" name="action" value="send_message" />
 		<div class="row">
 		<div class="sm-d-none md-d-flex col"></div>
 	    <div class="fof-form col-sm-12 col-md-6" style="background-color:#FFF3E4;">
@@ -129,10 +308,10 @@ add_action( 'the_content', 'fof_append_to_content' );
 		  				<h5 class="fof-section-title">Distributor Information</h5>
 						<div class="form-group">
 					      <label for="distributorName">Distributor Name</label>
-					      <input type="text" class="form-control" id="distributorName" name="distributorName" placeholder="ACME, Inc.">
+					      <input type="text" class="form-control" id="fofDistributorName" name="distributorName" placeholder="ACME, Inc.">
 
 		  			      <label for="distributorEmail">Distributor Email</label>
-		  			      <input type="email" class="form-control" id="distributorEmail" name="distributorEmail" placeholder="info@acme.com">
+		  			      <input type="email" class="form-control" id="fofDistributorEmail" name="distributorEmail" placeholder="info@acme.com">
 				    </div>
   		  			<div class="col-sm-12 col-md-6"></div>
 				</div>';
