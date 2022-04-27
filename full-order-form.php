@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Full Order Form
-Description: Creates a page titled "Full Order Form" and adds the form to that page. Setting page allows for email(s) manipulation.
+Description: Creates a page titled "Full Order Form" and adds the form to that page. Settings page allows for email(s) manipulation.
 Version: 1.0.0
 Contributors: haj420
 Author: Wm. Kroes
@@ -9,6 +9,8 @@ Author URI: https://charwebs.com
 License: GPLv2 or later
 Text Domain: full_order_form
 */
+
+
 global $wpdb;
 define( 'FOF_PLUGIN_FILE', __FILE__ );
 register_activation_hook( FOF_PLUGIN_FILE, 'fof_plugin_activation' );
@@ -43,6 +45,8 @@ function fof_plugin_activation() {
 
 
 add_action( 'wp_enqueue_scripts', 'load_plugin_css' );
+add_action( 'admin_enqueue_scripts', 'load_plugin_css' );
+
 function load_plugin_css() {
   $plugin_url = plugin_dir_url( __FILE__ );
 
@@ -62,7 +66,9 @@ function fof_search() {
 	//access passed variable
 	$term = $_POST['fof-search-input'];
 	//search db for term
-	while($result = $wpdb->get_results("SELECT sku, ds FROM catalogNew  WHERE ds LIKE '%".$term."%' LIMIT 10")) {
+	// while($result = $wpdb->get_results("SELECT sku, ds FROM catalogNew  WHERE ds LIKE '%".$term."%'")) {
+	while($result = $wpdb->get_results("SELECT sku, ds FROM catalogNew")) {
+
 		// return results
 		wp_send_json ( $result );
 	}
@@ -74,37 +80,6 @@ add_action( "wp_ajax_send_message", "send_message" );
 add_action( "wp_ajax_nopriv_send_message", "send_message" );
 // create the function to send email
 function send_message() {
- //  if
- //  (
-	// isset($_POST['distributorName'])
- //  &&isset($_POST['distributorEmail'])
- //  &&isset($_POST['name'])
- //  &&isset($_POST['address'])
- //  &&isset($_POST['city'])
- //  &&isset($_POST['state'])
- //  &&isset($_POST['zip'])
- //  &&isset($_POST['po'])
- //  &&isset($_POST['phone'])
- //  &&isset($_POST['email'])
- // ) {
-	 // $message = "Order Form Submission\r\n";
-
-
-	 // unset($_POST['action']);
-	 // unset($_POST['fof-search-input']);
-	 // unset($_POST['product']);
-	 // foreach($_POST as $key=>$value) {
-		//  if($value !== '') {
-		// $message .= $key." : ".$value."\r\n";
-		//  }
-	 //   }
-
-
-    // $send_to = array(
-	//     "charwebsllc@gmail.com" ,
-	// 	"bdstart@startimarketing.com"
-	// );
-	// include(plugin_dir_path( __FILE__ ) . "email.php");
 
 	$message = '<!DOCTYPE html><html><head>
 							<style>
@@ -130,6 +105,14 @@ function send_message() {
 				<tr>
 					<td style="text-align:left;vertical-align:top;width:60%;">
 						<h4 style="margin:0px;">Account Information</h4>
+						';
+				if(isset($_POST['distributorName'])) {
+					$message .= '
+						Distributor Name:'. $_POST['distributorName'].'<br>
+						Distributor Email:'. $_POST['distributorEmail'].'<br>
+					';
+				}
+				$message .=	'
 							Name: '.$_POST['name'] .'<br>
 							Company Name: '. $_POST['accountno'].'<br>
 							Address: '. $_POST['add'] .'<br>
@@ -147,7 +130,7 @@ function send_message() {
 		';
 
 	//  Find out if shipping to same address
-	if ($_POST['shipto'] == 'same') {
+	if ($_POST['shippingAddress'] == 'Same Address') {
 		$message .= '
 							Company Name: '.$_POST['accountno'].'<br>
 							Attn: '.$_POST['name'].'<br>
@@ -263,7 +246,11 @@ function send_message() {
 						</html>';
 
 
-	$send_to = "charwebsllc@gmail.com";
+	$send_to = get_option( 'fof-recipients');
+	$cc = get_option( 'fof-cc' );
+	$bcc = get_option( 'fof-bcc' );
+	// echo 'to: '.$send_to.'cc: '.$cc.'bcc: '.$bcc;
+	//"charwebsllc@gmail.com";
 	if(isset($_POST['distributorName'])) {
     	$subject = "Distributor Order from ".$_POST['distributorName'];
 	} elseif (get_bloginfo('name') !== null) {
@@ -273,16 +260,14 @@ function send_message() {
 	}
 
 $headers = array( 'Content-Type: text/html; charset=UTF-8' );
+$headers  = 'MIME-Version: 1.0' . "\r\n";
+$headers .= 'Content-type: text/html; charset=iso-8859-1' . "\r\n";
+$headers .= "Cc: $cc\r\n";
+$headers .= "Bcc: $bcc\r\n";
     $success = wp_mail($send_to,$subject,$message, $headers);
 	// wp_mail('charwebsllc@gmail.com', 'test', 'test');
             if ($success) return true;
             else return false;
-  // }
-  // else
-  // {
-	//   die();
-	//   // return false;
-  // }
 
 }
 
@@ -294,7 +279,7 @@ add_action( 'the_content', 'fof_append_to_content' );
 
 	$content = '
 		<form id="fof-form" >
-		<input type="hidden" name="action" value="send_message" />
+		<input type="hidden" name="action" value="send_message"/>
 		<div class="row">
 		<div class="sm-d-none md-d-flex col"></div>
 	    <div class="fof-form col-sm-12 col-md-6" style="background-color:#FFF3E4;">
@@ -311,10 +296,10 @@ add_action( 'the_content', 'fof_append_to_content' );
 		  				<h5 class="fof-section-title">Distributor Information</h5>
 						<div class="form-group">
 					      <label for="distributorName">Distributor Name</label>
-					      <input type="text" class="form-control" id="fofDistributorName" name="distributorName" placeholder="ACME, Inc.">
+					      <input type="text" class="form-control" id="fofDistributorName" name="distributorName">
 
 		  			      <label for="distributorEmail">Distributor Email</label>
-		  			      <input type="email" class="form-control" id="fofDistributorEmail" name="distributorEmail" placeholder="info@acme.com">
+		  			      <input type="email" class="form-control" id="fofDistributorEmail" name="distributorEmail" >
 				    </div>
   		  			<div class="col-sm-12 col-md-6"></div>
 				</div>';
@@ -330,37 +315,37 @@ add_action( 'the_content', 'fof_append_to_content' );
   		  			<div class="col-sm-12 col-md-6 border-end border-dark">
 		  				<h5 class="fof-section-title">Account Information</h5>
 		  			      <label for="name">Your Name</label>
-		  			      <input type="text" class="form-control" id="name" name="name" placeholder="Wile E. Coyote">
+		  			      <input type="text" class="form-control" id="name" name="name">
 
 						  <label for="companyName">Company Name</label>
-						  <input type="text" class="form-control" id="companyName" name="companyName" placeholder="Wile E. Corporation">
+						  <input type="text" class="form-control" id="companyName" name="accountno">
 
 						  <label for="address">Address</label>
-						  <input type="text" class="form-control" id="address" name="address" placeholder="123 Any St.">
+						  <input type="text" class="form-control" id="address" name="add">
 
 						  <label for="city">City/Town</label>
-						  <input type="text" class="form-control" id="city" name="city" placeholder="Desertville">
+						  <input type="text" class="form-control" id="city" name="city">
 
 						  <div class="row">
 							  <div class="col-sm-12 col-md-6">
 						    	<label for="state">State</label>
-						    	<input type="text" class="form-control" id="state" name="state" placeholder="AZ">
+						    	<input type="text" class="form-control" id="state" name="state" >
 						  	  </div>
 							  <div class="col-sm-12 col-md-6">
 							    <label for="zip">Zip Code</label>
-							    <input type="text" class="form-control" id="zip" name="zip" placeholder="00000">
+							    <input type="text" class="form-control" id="zip" name="zip" >
 							  </div>
 						  </div>
 
 
 						  <label for="po">Purchase Order Number</label>
-						  <input type="text" class="form-control" id="po" name="po" placeholder="12345">
+						  <input type="text" class="form-control" id="po" name="customerpo" >
 
 						  <label for="phone">Phone Number</label>
-						  <input type="phone" class="form-control" id="phone" name="phone" placeholder="(800) 222-1234">
+						  <input type="phone" class="form-control" id="phone" name="phonenumber">
 
 						  <label for="email">Email Address</label>
-						  <input type="email" class="form-control" id="email" name="email" placeholder="W.E.Coyote@wileecorp.com">
+						  <input type="email" class="form-control" id="email" name="emailadd">
 
 					    </div>
 					<div class="col-sm-12 col-md-6">
@@ -376,7 +361,7 @@ add_action( 'the_content', 'fof_append_to_content' );
 						  </select>
 
 						<div class="form-check">
-						  <input class="form-check-input" type="radio" name="shippingAddress" id="shippingAddressSame" value="Same Addres" checked>
+						  <input class="form-check-input" type="radio" name="shippingAddress" id="shippingAddressSame" value="Same Address" checked>
 						  <label class="form-check-label" for="shippingAddressSame">
 						    Same Address
 						  </label>
@@ -390,23 +375,26 @@ add_action( 'the_content', 'fof_append_to_content' );
 						</div>
 
 						<div id="shipAddressGroup" class="form-group" style="display:none;">
-							<label for="attn">Attention</label>
-							<input type="text" class="form-control" id="attn" placeholder="John Doe">
+						<label for="attn">Company</label>
+						<input type="text" class="form-control" id="shipcompany">
 
-							<label for="address">Address</label>
-							<input type="text" class="form-control" id="shipaddress" placeholder="123 Any St.">
+							<label for="shipattn">Attention</label>
+							<input type="text" class="form-control" id="attn" name="shipattn">
+
+							<label for="shipaddress">Address</label>
+							<input type="text" class="form-control" id="shipaddress" name="shipadd">
 
 							<label for="city">City/Town</label>
-							<input type="text" class="form-control" id="shipcity" placeholder="Desertville">
+							<input type="text" class="form-control" id="shipcity" name="shipcity">
 
 							<div class="row">
 								<div class="col-sm-12 col-md-6">
-								  <label for="state">State</label>
-								  <input type="text" class="form-control" id="shipstate" placeholder="AZ">
+								  <label for="shipstate">State</label>
+								  <input type="text" class="form-control" id="shipstate">
 								</div>
 								<div class="col-sm-12 col-md-6">
-								  <label for="zip">Zip Code</label>
-								  <input type="text" class="form-control" id="shipzip" placeholder="00000">
+								  <label for="shipzip">Zip Code</label>
+								  <input type="text" class="form-control" id="shipzip">
 								</div>
 							</div>
 						</div>
@@ -417,29 +405,27 @@ add_action( 'the_content', 'fof_append_to_content' );
 			  <div class="row bg-white pt-3"></div>
 			  <div class="row">
 			      <div class="col-12">
-				  	<h5 class="fof-section-title">Requested Items</h5>
+				  	<h5 class="fof-section-title">Search For Your Item</h5>
 				  </div>
 			  </div>
 			  <div class="row">
-				  <div class="col-8">
-					  <input type="text" id="search" name="fof-search-input" class="fof-search-input mr-3"/>
-					   <div id="suggestions"></div>
+				  <div class="col-10">
+					  <input type="text" id="search" name="fof-search-input" list="products" class="fof-search-input mr-3" style="width:97%;" autocomplete="off"/>
+					  <datalist id="products"></datalist>
+					   <!-- <div id="suggestions"></div> -->
 				  </div>
-				  <div class="col">
-					  <button type="button" class="btn btn-secondary fof-search rounded-0">Search</button>
-					  <button type="button" class="btn btn-secondary fof-clear rounded-0">Clear</button>
+				  <div class="col-2 p-0 text-center">
+					 <!-- <button type="button" class="btn btn-secondary fof-search rounded-0">Search</button> -->
+					  <button type="button" class="btn btn-secondary fof-clear rounded-0" style="width:76%;">Clear</button>
 				  </div>
 			  </div>
 			  <div class="row pt-5">
 				  <div class="col-8">
-					  <input list="products" name="product" class="fof-select" placeholder="Select One">
+					 <!-- <input list="products" name="product" class="fof-select">
 					    <datalist id="products">
-						</datalist>
+						</datalist> -->
 				  </div>
 				  <div class="col">
-				         <!--
-						  IT MAY BE EASIER TO JUST CREATE AN AUTOCOMPLETE FEATURE RATHER THAN USING THE SELECT/OPTION PATH.
-						  -->
 					  <p class="fof-section-title text-center">Use drop down to select item then click plus sign (left) to add to that row</p>
 				  </div>
 			  </div>
@@ -449,7 +435,7 @@ add_action( 'the_content', 'fof_append_to_content' );
    					  <h5>Item #</h5>
 				  </div>
 				  <div class="col text-center">
-					 <h5>Description (Not Required) </h5>
+					 <h5>Description </h5>
 				 </div>
 				 <div class="col-2 text-right">
 					 <h5>Quantity</h5>
@@ -553,9 +539,7 @@ add_action( 'the_content', 'fof_append_to_content' );
 		<div class="sm-d-none md-d-flex col"></div>
 			  <div class="col sm-col-12 col-md-6 p-0">
 			  <label for="comments" class="ps-2">Additional Comments: </label>
-			  <textarea name="comments" id="fof-comments" rows="5">
-
-			  </textarea>
+			  <textarea name="addcomments" id="fof-comments" rows="5"></textarea>
 			 </div>
 		<div class="sm-d-none md-d-flex col"></div>
 		  </div>
@@ -577,5 +561,121 @@ add_action( 'the_content', 'fof_append_to_content' );
 	}
 
 	// email form
+
+}
+
+// add admin page
+add_action( 'admin_menu', 'my_admin_menu' );
+
+function my_admin_menu() {
+	add_menu_page( 'Order Form Settings', 'Order Form Settings', 'manage_options', 'fof/settings.php', 'order_form_admin_page', 'dashicons-tickets', 6  );
+}
+
+
+
+function order_form_admin_page(){
+
+	add_action( 'admin_notices', 'fof_admin_notice__success' );
+
+	?>
+	<div class="wrap">
+		<div class='row'>
+			<div class='col'>
+			</div>
+			<div class='col-sm-12 col-md-8'>
+				<h2>Order Form Settings</h2>
+				<form id='fof-settings' >
+					<input type='hidden' name='siteName' value='<?=get_bloginfo( 'name' )?>'/>
+					<label for='recipients'>Recipients</label>
+					<br/>
+					<input type='text' name='recipients'/>
+					<br/>
+					<label for='copy'>CC</label>
+					<br/>
+					<input type='text' name='copy'/>
+					<br/>
+					<label for='blindCopy'>BCC</label>
+					<br/>
+					<input type='text' name='blindCopy'/>
+					<br/>
+					<button class='fof-settings-submit'>Submit</button>
+				</div>
+				<div class='col'>
+				</div>
+			</div>
+	</div>
+	<script>
+	jQuery('.fof-settings-submit').click(function() {
+		event.preventDefault();
+		// alert('hi');
+		var recipients = jQuery('[name=recipients]').val()
+		var copy = jQuery('[name=copy]').val()
+		var blindCopy = jQuery('[name=blindCopy]').val()
+		jQuery.ajax({
+			type: "POST",
+			dataType: "json",
+			url: fof_ajax_object.ajax_url,
+			action: "fof_update_settings",
+			data: {
+				'action': 'fof_update_settings',
+				'recipients': recipients,
+				'copy' : copy,
+				'blindCopy' : blindCopy
+			},
+			success: function(response){
+				alert(response.msg);
+			},
+			error: function(response) {
+				// alert('error');
+				console.log(response.responseText);
+			}
+		});
+	});
+	</script>
+	<?php
+}
+
+
+
+add_action( 'wp_ajax_fof_update_settings', 'fof_update_settings' );
+// add_action( 'wp_ajax_nonpriv_fof_update_settings', 'fof_update_settings' );
+
+
+function fof_update_settings() {
+	$option_set = get_option( 'fof-recipients');
+	if($option_set === false)
+	{
+		$successR = add_option( 'fof-recipients', $_POST['recipients']);
+		$successC = add_option( 'fof-cc', $_POST['copy']);
+		$successB = add_option( 'fof-bcc', $_POST['blindCopy']);
+
+		if($successR !== false && $successC !== false && $successB !== false ) {
+			wp_send_json_success( array( 'add' => true, 'msg' => 'Success!' ) );
+		}
+		else
+		{
+			wp_send_json_error( array( 'add' => false, 'msg' => 'Error!' ) );
+		}
+	}
+	elseif($option_set !== false)
+	{
+		$successR = update_option( 'fof-recipients', $_POST['recipients']);
+		$successC = update_option( 'fof-cc', $_POST['copy']);
+		$successB = update_option( 'fof-bcc', $_POST['blindCopy']);
+
+		if($successR !== false && $successC !== false && $successB !== false )
+		{
+			wp_send_json_success( array( 'update' => true, 'msg' => 'Success!' ) );
+		}
+		else
+		{
+			wp_send_json_error( array( 'update' => false, 'msg' => 'Error !' ) );
+		}
+	}
+	else
+	{
+			wp_send_json_error( array( 'update/add' => false, 'msg' => 'Something terrible has occured. :'.$option_set));
+	}
+
 
 }
