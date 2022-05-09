@@ -141,7 +141,7 @@ jQuery( document ).ready( function( $ ) {
 			   if(field.name == 'shippingAddress') { $("#formValues").append("<b>Same Address</b>  :  <span class='text-right'>" + field.value + "</span><br>"); };
 			   if(field.name == 'shipattn') { $("#formValues").append("<b>Shipping Attn</b>  :  <span class='text-right'>" + field.value + "</span><br>"); };
 			   if(field.name == 'shipcity') { $("#formValues").append("<b>Shipping City</b>  :  <span class='text-right'>" + field.value + "</span><br>"); };
-		   		// console.log(field.name + ":" + field.value);
+		   		console.log(field.name + ":" + field.value);
 		  		// $("#formValues").append("<b>"+field.name + "</b>  :  <span class='text-right'>" + field.value + "</span><br>");
 		  		// $("#formValues").append("  <span class='text-right'>" + field.value + "</span><br>");
 
@@ -175,7 +175,6 @@ jQuery( document ).ready( function( $ ) {
 			return false;
 		})
 		$('#modalSubmit').click(function() {
-			console.log('form submitted.');
 			// $('#confirmationModal').css('display', 'none');
 			//send ajax request
 			$.ajax({
@@ -187,10 +186,9 @@ jQuery( document ).ready( function( $ ) {
 					$('#modalSubmit').hide();
 					$('#modalCancel').text('Close');
 					$('.rmText').hide();
-					// $('#').text('Close');
+					$('#').text('Close');
 					$('#formValues').html('<h4 class="text-center">Thank you for your order!</h4><br><h5>(If you do not receive an order acknowledgement within 24 hours, please contact us)</h5>');
-					jQuery("#fof-form")[0].reset();
-
+					$('input').val('');
 				},
 				error: function(response) {
 					$('#modalCancel').text('Close');
