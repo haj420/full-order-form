@@ -74,6 +74,23 @@ function fof_search() {
 	}
 }
 
+// Add action to allow AJAX to access fof_search function
+add_action( "wp_ajax_fof_searchDS", "fof_searchDS" );
+add_action( "wp_ajax_nopriv_fof_searchDS", "fof_searchDS" );
+// create the function fof_search
+function fof_searchDS() {
+	global $wpdb;
+	//access passed variable
+	$term = $_POST['fof-search-input'];
+	//search db for term
+	while($result = $wpdb->get_results("SELECT ds FROM catalogNew  WHERE sku = '".$term."'")) {
+	// while($result = $wpdb->get_results("SELECT sku, ds FROM catalogNew")) {
+
+		// return results
+		wp_send_json ( $result );
+	}
+}
+
 
 // Add action to allow AJAX to access send_message function
 add_action( "wp_ajax_send_message", "send_message" );

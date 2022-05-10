@@ -22,6 +22,7 @@ jQuery( document ).ready( function( $ ) {
 	var ds;
 
 	$(document).ready(function() {
+		console.log('fof loading data');
 		var _this = $(this);
 		var fofSearchInput = $(this).val();
 		// AJAX url
@@ -42,12 +43,41 @@ jQuery( document ).ready( function( $ ) {
 				var option = "<option value='"+response[i].sku+" | "+response[i].ds+"'></option>";
 					$('#products').append(option);
 					_this.focus();
+					console.log('fof data ready.')
 			});
 		    },
 			error: function(response) {
 				console.log(response);
 			}
 		});
+	})
+
+	$('.item-num').on('blur', function() {
+		var skuField = $(this).closest('.row').find('.item-num').val();
+		var nextField = $(this).closest('.row').find('.item-desc');
+		console.log('sku val '+$(this).closest('.row').find('.item-num').val())
+
+			console.log('fof sku lookup started.')
+			var _this = $(this);
+			var fofSearchInput = $(this).val();
+			// AJAX url
+			$.ajax({
+				type: "POST",
+				dataType: "json",
+				url: fof_ajax_object.ajax_url,
+				data: {
+					'action': 'fof_searchDS',
+					'fof-search-input': fofSearchInput
+				},
+				success: function(response){
+						console.log('fof sku lookup done: '+response[0].ds)
+						$(nextField).val(response[0].ds);
+				// });
+				},
+				error: function(response) {
+					console.log(response);
+				}
+			});
 	})
 
 	// add item to row next to button CLICKED
