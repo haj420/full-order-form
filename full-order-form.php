@@ -378,20 +378,20 @@ add_action( 'the_content', 'fof_append_to_content' );
 						  </select>
 
 						<div class="form-check">
-						  <input class="form-check-input" type="radio" name="shippingAddress" id="shippingAddressSame" value="Same Address" checked>
+						  <input class="form-check-input" type="radio" name="fof_shippingAddress" id="shippingAddressSame" value="Same Address" checked>
 						  <label class="form-check-label" for="shippingAddressSame">
 						    Same Address
 						  </label>
 						</div>
 						<div class="form-check">
-						  <input class="form-check-input" type="radio" name="shippingAddress" id="shippingAddressBelow" value="Below">
+						  <input class="form-check-input" type="radio" name="fof_shippingAddress" id="shippingAddressBelow" value="Below">
 						  <label class="form-check-label" for="shippingAddressBelow">
 						    Shipping Address Below
 						  </label>
 						</div>
 						</div>
 
-						<div id="shipAddressGroup" class="form-group" style="display:none;">
+						<div id="fof_shipAddressGroup" class="form-group" style="display:none;">
 						<label for="attn">Company</label>
 						<input type="text" class="form-control" id="shipcompany">
 
@@ -563,7 +563,10 @@ add_action( 'the_content', 'fof_append_to_content' );
 		<div class="row">
 	  <div class="sm-d-none md-d-flex col"></div>
 	  <div class="fof-form col-sm-12 col-md-6 p-0">
-        <button type="button" class="btn btn-danger fof-submit">Submit Order</button>
+	  <button type="button" class="btn btn-danger fof-submit g-recaptcha"
+	  data-sitekey="6LfwZtoUAAAAABBo9xlcJHOEd_2WXqiqYsZN5q5p"
+	  data-callback="FonSubmit"
+	  data-action="submit">Submit Order</button>
 		<br>
 		<p class="fof-section-title ps-2">Freight Will Be Added to Final Invoices</p>
 	  </div>
@@ -590,6 +593,7 @@ function my_admin_menu() {
 
 
 
+// ADD THE SETTINGS PAGE (ADMIN PAGE)
 function order_form_admin_page(){
 
 	add_action( 'admin_notices', 'fof_admin_notice__success' );
@@ -599,7 +603,7 @@ function order_form_admin_page(){
 		<div class='row'>
 			<div class='col'>
 			</div>
-			<div class='col-sm-12 col-md-8'>
+			<div class='col-sm-12 col-md-6'>
 				<h2>Order Form Settings</h2>
 				<form id='fof-settings' >
 					<input type='hidden' name='siteName' value='<?=get_bloginfo( 'name' )?>'/>
@@ -616,9 +620,18 @@ function order_form_admin_page(){
 					<input type='text' name='blindCopy'/>
 					<br/>
 					<button class='fof-settings-submit'>Submit</button>
-				</div>
-				<div class='col'>
-				</div>
+			</div>
+			<div class='col-sm-12 col-md-6'>
+				<p>Current Recipient(s)</p>
+				<p><?=get_option( 'fof-recipients')?></p>
+				<p>CC</p>
+				<p><?=get_option( 'fof-cc' )?></p>
+				<p>BCC</p>
+				<p><?=get_option( 'fof-bcc' )?></p>
+			</div>
+			<div class='col'>
+
+			</div>
 			</div>
 	</div>
 	<script>
@@ -640,17 +653,19 @@ function order_form_admin_page(){
 				'blindCopy' : blindCopy
 			},
 			success: function(response){
-				alert(response.msg);
+				// alert(response.msg);
+				jQuery('.wrap').prepend("<div class='notice notice-success is-dismissible'><p>Recipients Updated.</p></div>");
 			},
 			error: function(response) {
 				// alert('error');
-				console.log(response.responseText);
+				jQuery('.wrap').prepend("<div class='notice notice-error is-dismissible'><p>There was an error updating your form recipients. Verify that all inputs are correct and that you separate each recipient with a comma. Additionally, clearing out the inputs and saving, then retrying your entry should reset the data. </p></div>");
 			}
 		});
 	});
 	</script>
 	<?php
 }
+
 
 
 

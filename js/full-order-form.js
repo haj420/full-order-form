@@ -117,119 +117,129 @@ jQuery( document ).ready( function( $ ) {
 	//SUBMIT FORM FUNCTION
 
 	//.fof-submit event listener
-	$('.fof-submit').click(function() {
-		//prevent default action
-		event.preventDefault();
-		$("#formValues").empty();
- 		var data = $('#fof-form').serialize();
- 		var dataA = $('#fof-form').serializeArray();
+	// $('.fof-submit').click(function() {
 
-		if(distributorName === undefined) { var distributorName = $('#fofDistributorName').val(); }
-		function cancel() {
-			 $('#confirmationModal').hide();
-			 return false;
-		}
-
-
-		var modal = '<div id="confirmationModal" class="modal" tabindex="-1" role="dialog">';
-			modal += '<div class="modal-dialog" role="document" >';
-			modal += '<div class="modal-content">';
-			modal += '<div class="modal-header">';
-			modal += '<h5 class="modal-title text-center">Confirm Your Order</h5><br>';
-			modal += '</div>';
-		    modal += '<div class="modal-body">';
-			modal += '<h5 class="text-center rmText">Is the order below correct?</h5><br>';
-			modal += '<h5 class="text-center rmText">(Complete your order below by pressing submit)</h5><br>'
-			modal += '<div id="formValues" class="mx-auto" style="width:80%"></div>';
-			modal += '</div>';
-		    modal += '<div class="modal-footer">';
-		    modal += '<button type="button" id="modalSubmit" class="btn btn-primary">Submit Order</button>';
-		    modal += '<button type="button" id="modalCancel" class="btn btn-secondary" data-dismiss="modal">Cancel</button>';
-		    modal += '</div>';
-		    modal += '</div>';
-		    modal += '</div>';
-		    modal += '</div>';
-
-
-
-
-
-	   $('body').append(modal);
-	   $.each(dataA, function(i, field){
-			   if(field.name == 'distributorName') { $("#formValues").append("<b>Distributor Name</b>  :  <span class='text-right'>" + field.value + "</span><br>"); };
-			   if(field.name == 'distributorEmail') { $("#formValues").append("<b>Distributor Email</b>  :  <span class='text-right'>" + field.value + "</span><br>"); };
-			   if(field.name == 'name') { $("#formValues").append("<b>Name</b>  :  <span class='text-right'>" + field.value + "</span><br>"); };
-			   if(field.name == 'add') { $("#formValues").append("<b>Address</b>  :  <span class='text-right'>" + field.value + "</span><br>"); };
-			   if(field.name == 'accountno') { $("#formValues").append("<b>Company Name</b>  :  <span class='text-right'>" + field.value + "</span><br>"); };
-			   if(field.name == 'city') { $("#formValues").append("<b>City</b>  :  <span class='text-right'>" + field.value + "</span><br>"); };
-			   if(field.name == 'state') { $("#formValues").append("<b>State</b>  :  <span class='text-right'>" + field.value + "</span><br>"); };
-			   if(field.name == 'zip') { $("#formValues").append("<b>Zip</b>  :  <span class='text-right'>" + field.value + "</span><br>"); };
-			   if(field.name == 'customerpo') { $("#formValues").append("<b>Purchase Order</b>  :  <span class='text-right'>" + field.value + "</span><br>"); };
-			   if(field.name == 'phonenumber') { $("#formValues").append("<b>Phone Number</b>  :  <span class='text-right'>" + field.value + "</span><br>"); };
-			   if(field.name == 'email') { $("#formValues").append("<b>Email Address</b>  :  <span class='text-right'>" + field.value + "</span><br>"); };
-			   if(field.name == 'shippingMethod') { $("#formValues").append("<b>Shipping Method</b>  :  <span class='text-right'>" + field.value + "</span><br>"); };
-			   if(field.name == 'shippingAddress') { $("#formValues").append("<b>Same Address</b>  :  <span class='text-right'>" + field.value + "</span><br>"); };
-			   if(field.name == 'shipattn') { $("#formValues").append("<b>Shipping Attn</b>  :  <span class='text-right'>" + field.value + "</span><br>"); };
-			   if(field.name == 'shipcity') { $("#formValues").append("<b>Shipping City</b>  :  <span class='text-right'>" + field.value + "</span><br>"); };
-		   		// console.log(field.name + ":" + field.value);
-		  		// $("#formValues").append("<b>"+field.name + "</b>  :  <span class='text-right'>" + field.value + "</span><br>");
-		  		// $("#formValues").append("  <span class='text-right'>" + field.value + "</span><br>");
-
-		 	   if( field.value !== ''
-				    && field.name !== 'action'
-			   		&& field.name !== 'fof-search-input'
-					&& field.name !== 'distributorName'
-					&& field.name !== 'distributorEmail'
- 					&& field.name !== 'name'
-					&& field.name !== 'accountno'
-					&& field.name !== 'add'
-					&& field.name !== 'city'
-					&& field.name !== 'state'
-					&& field.name !== 'zip'
-					&& field.name !== 'customerpo'
-					&& field.name !== 'phonenumber'
-					&& field.name !== 'emailadd'
-					&& field.name !== 'shippingMethod'
-					&& field.name !== 'shippingAddress'
-					&& field.name !== 'shipattn'
-					&& field.name !== 'shipadd'
-					&& field.name !== 'shipcity'
-				) {
-					 $("#formValues").append("<b>"+field.name + "</b>  :  <span class='text-right'>" + field.value + "</span><br>");
-			   }
-		});
-	   $("#confirmationModal").show();
-	   console.log('modal added');
-		$('#modalCancel').click(function() {
-			$('#confirmationModal').css('display', 'none');
-			return false;
-		})
-		$('#modalSubmit').click(function() {
-			console.log('form submitted.');
-			// $('#confirmationModal').css('display', 'none');
-			//send ajax request
-			$.ajax({
-				type: "POST",
-				dataType: "json",
-				url: fof_ajax_object.ajax_url,
-				data: data,
-				success: function(response){
-					$('#modalSubmit').hide();
-					$('#modalCancel').text('Close');
-					$('.rmText').hide();
-					// $('#').text('Close');
-					$('#formValues').html('<h4 class="text-center">Thank you for your order!</h4><br><h5>(If you do not receive an order acknowledgement within 24 hours, please contact us)</h5>');
-					jQuery("#fof-form")[0].reset();
-
-				},
-				error: function(response) {
-					$('#modalCancel').text('Close');
-					$('#formValues').html('<h4 class="text-center">There was an error processing your order!</h4>')
-				}
-			});
-		});
-
-	});
 
 
 });
+function send_fof() {
+	//prevent default action
+	event.preventDefault();
+	jQuery("#formValues").empty();
+	var data = jQuery('#fof-form').serialize();
+	var dataA = jQuery('#fof-form').serializeArray();
+
+	if(distributorName === undefined) { var distributorName = jQuery('#fofDistributorName').val(); }
+	function cancel() {
+		 jQuery('#confirmationModal').hide();
+		 return false;
+	}
+
+
+	var modal = '<div id="confirmationModal" class="modal" tabindex="-1" role="dialog">';
+		modal += '<div class="modal-dialog" role="document" >';
+		modal += '<div class="modal-content">';
+		modal += '<div class="modal-header">';
+		modal += '<h5 class="modal-title text-center">Confirm Your Order</h5><br>';
+		modal += '</div>';
+		modal += '<div class="modal-body">';
+		modal += '<h5 class="text-center rmText">Is the order below correct?</h5><br>';
+		modal += '<h5 class="text-center rmText">(Complete your order below by pressing submit)</h5><br>'
+		modal += '<div id="formValues" class="mx-auto" style="width:80%"></div>';
+		modal += '</div>';
+		modal += '<div class="modal-footer">';
+		modal += '<button type="button" id="modalSubmit" class="btn btn-primary">Submit Order</button>';
+		modal += '<button type="button" id="modalCancel" class="btn btn-secondary" data-dismiss="modal">Cancel</button>';
+		modal += '</div>';
+		modal += '</div>';
+		modal += '</div>';
+		modal += '</div>';
+
+
+
+
+
+   jQuery('body').append(modal);
+   jQuery.each(dataA, function(i, field){
+		   if(field.name == 'distributorName') { jQuery("#formValues").append("<b>Distributor Name</b>  :  <span class='text-right'>" + field.value + "</span><br>"); };
+		   if(field.name == 'distributorEmail') { jQuery("#formValues").append("<b>Distributor Email</b>  :  <span class='text-right'>" + field.value + "</span><br>"); };
+		   if(field.name == 'name') { jQuery("#formValues").append("<b>Name</b>  :  <span class='text-right'>" + field.value + "</span><br>"); };
+		   if(field.name == 'add') { jQuery("#formValues").append("<b>Address</b>  :  <span class='text-right'>" + field.value + "</span><br>"); };
+		   if(field.name == 'accountno') { jQuery("#formValues").append("<b>Company Name</b>  :  <span class='text-right'>" + field.value + "</span><br>"); };
+		   if(field.name == 'city') { jQuery("#formValues").append("<b>City</b>  :  <span class='text-right'>" + field.value + "</span><br>"); };
+		   if(field.name == 'state') { jQuery("#formValues").append("<b>State</b>  :  <span class='text-right'>" + field.value + "</span><br>"); };
+		   if(field.name == 'zip') { jQuery("#formValues").append("<b>Zip</b>  :  <span class='text-right'>" + field.value + "</span><br>"); };
+		   if(field.name == 'customerpo') { jQuery("#formValues").append("<b>Purchase Order</b>  :  <span class='text-right'>" + field.value + "</span><br>"); };
+		   if(field.name == 'phonenumber') { jQuery("#formValues").append("<b>Phone Number</b>  :  <span class='text-right'>" + field.value + "</span><br>"); };
+		   if(field.name == 'email') { jQuery("#formValues").append("<b>Email Address</b>  :  <span class='text-right'>" + field.value + "</span><br>"); };
+		   if(field.name == 'shippingMethod') { jQuery("#formValues").append("<b>Shipping Method</b>  :  <span class='text-right'>" + field.value + "</span><br>"); };
+		   if(field.name == 'shippingAddress') { jQuery("#formValues").append("<b>Same Address</b>  :  <span class='text-right'>" + field.value + "</span><br>"); };
+		   if(field.name == 'shipattn') { jQuery("#formValues").append("<b>Shipping Attn</b>  :  <span class='text-right'>" + field.value + "</span><br>"); };
+		   if(field.name == 'shipcity') { jQuery("#formValues").append("<b>Shipping City</b>  :  <span class='text-right'>" + field.value + "</span><br>"); };
+			// console.log(field.name + ":" + field.value);
+			// jQuery("#formValues").append("<b>"+field.name + "</b>  :  <span class='text-right'>" + field.value + "</span><br>");
+			// jQuery("#formValues").append("  <span class='text-right'>" + field.value + "</span><br>");
+
+		   if( field.value !== ''
+				&& field.name !== 'action'
+				&& field.name !== 'fof-search-input'
+				&& field.name !== 'distributorName'
+				&& field.name !== 'distributorEmail'
+				&& field.name !== 'name'
+				&& field.name !== 'accountno'
+				&& field.name !== 'add'
+				&& field.name !== 'city'
+				&& field.name !== 'state'
+				&& field.name !== 'zip'
+				&& field.name !== 'customerpo'
+				&& field.name !== 'phonenumber'
+				&& field.name !== 'emailadd'
+				&& field.name !== 'shippingMethod'
+				&& field.name !== 'shippingAddress'
+				&& field.name !== 'shipattn'
+				&& field.name !== 'shipadd'
+				&& field.name !== 'shipcity'
+				&& field.name !== 'g-recaptcha-response'
+			) {
+				 jQuery("#formValues").append("<b>"+field.name + "</b>  :  <span class='text-right'>" + field.value + "</span><br>");
+		   }
+	});
+   jQuery("#confirmationModal").show();
+   console.log('modal added');
+	jQuery('#modalCancel').click(function() {
+		jQuery('#confirmationModal').css('display', 'none');
+		return false;
+	})
+	jQuery('#modalSubmit').click(function() {
+		console.log('form submitted.');
+		// jQuery('#confirmationModal').css('display', 'none');
+		//send ajax request
+		jQuery.ajax({
+			type: "POST",
+			dataType: "json",
+			url: fof_ajax_object.ajax_url,
+			data: data,
+			success: function(response){
+				jQuery('#modalSubmit').hide();
+				jQuery('#modalCancel').text('Close');
+				jQuery('.rmText').hide();
+				// jQuery('#').text('Close');
+				jQuery('#formValues').html('<h4 class="text-center">Thank you for your order!</h4><br><h5>(If you do not receive an order acknowledgement within 24 hours, please contact us)</h5>');
+				jQuery("#fof-form")[0].reset();
+					// location.reload();
+
+			},
+			error: function(response) {
+				jQuery('#modalCancel').text('Close');
+				jQuery('#formValues').html('<h4 class="text-center">There was an error processing your order!</h4>')
+			}
+		});
+	});
+
+}
+
+function FonSubmit(token) {
+	console.log('fof form submitted. Token received: '+token);
+	 // document.getElementById("qof-form").submit();
+	 send_fof();
+   }
