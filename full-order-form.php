@@ -2,7 +2,7 @@
 /*
 Plugin Name: Full Order Form
 Description: Creates a page titled "Full Order Form" and adds the form to that page. Settings page allows for email(s) manipulation.
-Version: 1.0.0
+Version: 1.2.0
 Contributors: haj420
 Author: Wm. Kroes
 Author URI: https://charwebs.com
