@@ -2,11 +2,16 @@ jQuery( document ).ready( function( $ ) {
 	$('.fof > a').attr('href', 'full-order-form/')
 
 	// alert('Jquery and plugin js loaded.');
+    $('input[name="fof_shippingAddress"]').change(function() {
+		// alert('BTN CLICKED.');
+		$('div#fof_shipAddressGroup').toggle();
+	})
+
+	// alert('Jquery and plugin js loaded.');
     $('input[name="shippingAddress"]').change(function() {
 		// alert('BTN CLICKED.');
 		$('div#shipAddressGroup').toggle();
 	})
-
 	// Event listener for fof-clear BTN
 	$('.fof-clear').on('click', function() {
 		$('.fof-search-input').val('');

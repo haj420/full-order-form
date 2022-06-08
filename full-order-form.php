@@ -143,11 +143,11 @@ function send_message() {
 					</td>
 					<td style="text-align:left;vertical-align:top;width:40%;">
 						<h4 style="margin:0px;">Shipping Information</h4>
-							Preferred Shipping: '.$_POST['shipmethod'].'<br>
+							Preferred Shipping: '.$_POST['shippingMethod'].'<br>
 		';
 
 	//  Find out if shipping to same address
-	if ($_POST['shippingAddress'] == 'Same Address') {
+	if (($_POST['fof_shippingAddress'] == 'Same Address') || ($_POST['shippingAddress'] == 'Same Address')) {
 		$message .= '
 							Company Name: '.$_POST['accountno'].'<br>
 							Attn: '.$_POST['name'].'<br>
@@ -166,6 +166,7 @@ function send_message() {
 							Zip: '.$_POST['shipzip'].'<br>
 						';
 	}
+
 	//  Continue message
 	$message .= '
 					</td>
@@ -393,7 +394,7 @@ add_action( 'the_content', 'fof_append_to_content' );
 
 						<div id="fof_shipAddressGroup" class="form-group" style="display:none;">
 						<label for="attn">Company</label>
-						<input type="text" class="form-control" id="shipcompany">
+						<input type="text" class="form-control" id="shipcompany" name="shipaccountno">
 
 							<label for="shipattn">Attention</label>
 							<input type="text" class="form-control" id="attn" name="shipattn">
@@ -407,11 +408,11 @@ add_action( 'the_content', 'fof_append_to_content' );
 							<div class="row">
 								<div class="col-sm-12 col-md-6">
 								  <label for="shipstate">State</label>
-								  <input type="text" class="form-control" id="shipstate">
+								  <input type="text" class="form-control" id="shipstate" name="shipstate">
 								</div>
 								<div class="col-sm-12 col-md-6">
 								  <label for="shipzip">Zip Code</label>
-								  <input type="text" class="form-control" id="shipzip">
+								  <input type="text" class="form-control" id="shipzip" name="shipzip">
 								</div>
 							</div>
 						</div>
