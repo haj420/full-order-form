@@ -264,34 +264,43 @@ function send_message() {
 						</html>';
 
 
-	$send_to = get_option( 'fof-recipients');
-	$send_to .= ",".$_POST['emailadd'];
-	global $blog_id;
+						$send_to = get_option( 'fof-recipients');
 
-	$cc = get_option( 'fof-cc' );
-	$bcc = get_option( 'fof-bcc' );
-	// echo 'to: '.$send_to.'cc: '.$cc.'bcc: '.$bcc;
-	//"charwebsllc@gmail.com";
-	if(isset($_POST['distributorName'])) {
-	 $send_to .= ",".$_POST['distributorEmail'];
-    	$subject = "Distributor Order from ".$_POST['distributorName'];
-	} elseif (get_bloginfo('name') !== null) {
-		$subject = "Distributor Order from distributor ".get_bloginfo( 'name' );
-	}else {
-		$subject = "Distributor Order from distributor"; // WHY DOESN'T THIS WORK? .get_bloginfo( 'name' )." ";
-	}
-
-$headers = array( 'Content-Type: text/html; charset=UTF-8' );
-$headers  = 'MIME-Version: 1.0' . "\r\n";
-$headers .= 'Content-type: text/html; charset=iso-8859-1' . "\r\n";
-$headers .= "Cc: $cc\r\n";
-$headers .= "Bcc: $bcc\r\n";
-    $success = wp_mail($send_to,$subject,$message, $headers);
-	// wp_mail('charwebsllc@gmail.com', 'test', 'test');
-            if ($success) return true;
-            else return false;
-
-}
+						// $send_to = $_POST['emailadd'];
+						 global $blog_id;
+				 
+						 $cc = get_option( 'fof-cc' );
+						 $bcc = get_option( 'fof-bcc' );
+						 // echo 'to: '.$send_to.'cc: '.$cc.'bcc: '.$bcc;
+						 //"charwebsllc@gmail.com";
+						 if(isset($_POST['distributorName'])) {
+						  $send_to .= ",".$_POST['distributorEmail'];
+						  $subject = "Distributor Order from ".$_POST['distributorName'];
+						 } elseif (get_bloginfo('name') !== null) {
+								 $subject = "Distributor Order from distributor ".get_bloginfo( 'name' );
+						 }else {
+								 $subject = "Distributor Order from distributor"; // WHY DOESN'T THIS WORK? .get_bloginfo( 'name' )." ";
+						 }
+				 
+				 $headers = array( 'Content-Type: text/html; charset=UTF-8' );
+				 $headers  = 'MIME-Version: 1.0' . "\r\n";
+				 $headers .= 'Content-type: text/html; charset=iso-8859-1' . "\r\n";
+				 $headers .= "Cc: $cc\r\n";
+				 $headers .= "Bcc: $bcc\r\n";
+					 $success = wp_mail($send_to,$subject,$message, $headers);
+						 // wp_mail('charwebsllc@gmail.com', 'test', 'test');
+							 if ($success) {
+								 $send_to = $_POST['emailadd'];
+								 $headers = array( 'Content-Type: text/html; charset=UTF-8' );
+								 $client_success = wp_mail($send_to,$subject,$message, $headers);
+										 if($client_success) {
+												 return true;
+										 }
+							 }
+							 else return false;
+				 
+				 }
+				 
 
 
 // Add the form content to the new page
