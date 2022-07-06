@@ -265,11 +265,15 @@ function send_message() {
 
 
 	$send_to = get_option( 'fof-recipients');
+	$send_to .= ",".$_POST['emailadd'];
+	global $blog_id;
+
 	$cc = get_option( 'fof-cc' );
 	$bcc = get_option( 'fof-bcc' );
 	// echo 'to: '.$send_to.'cc: '.$cc.'bcc: '.$bcc;
 	//"charwebsllc@gmail.com";
 	if(isset($_POST['distributorName'])) {
+	 $send_to .= ",".$_POST['distributorEmail'];
     	$subject = "Distributor Order from ".$_POST['distributorName'];
 	} elseif (get_bloginfo('name') !== null) {
 		$subject = "Distributor Order from distributor ".get_bloginfo( 'name' );
